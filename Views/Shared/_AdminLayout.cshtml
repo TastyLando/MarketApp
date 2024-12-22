@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel - @ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/Admin">Admin Panel</a>
+            <div class="navbar-nav">
+                <a class="nav-item nav-link" href="/Admin/Dashboard">Dashboard</a>
+                <a class="nav-item nav-link" href="/Admin/Products">Ürünler</a>
+                <a class="nav-item nav-link" href="/" target="_blank">Siteyi Görüntüle</a>
+                <a class="nav-item nav-link text-danger" href="/Admin/Logout">Çıkış</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        @RenderBody()
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

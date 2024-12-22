@@ -1,0 +1,117 @@
+@model Cart
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="mb-4">Sepetim</h2>
+            
+            @if (Model.Items.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Ürün</th>
+                                <th>Fiyat</th>
+                                <th>Adet</th>
+                                <th>Toplam</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                            {
+                                                <img src="@item.ImageUrl" class="me-3" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;" alt="@item.ProductName">
+                                            }
+                                            <span>@item.ProductName</span>
+                                        </div>
+                                    </td>
+                                    <td>@item.Price.ToString("C2")</td>
+                                    <td style="width: 150px;">
+                                        <div class="input-group">
+                                            <button class="btn btn-outline-secondary quantity-decrease" type="button">-</button>
+                                            <input type="number" class="form-control text-center quantity-input" 
+                                                   value="@item.Quantity" min="1" data-product-id="@item.ProductId">
+                                            <button class="btn btn-outline-secondary quantity-increase" type="button">+</button>
+                                        </div>
+                                    </td>
+                                    <td>@((item.Price * item.Quantity).ToString("C2"))</td>
+                                    <td>
+                                        <form asp-action="RemoveFromCart" method="post" class="d-inline">
+                                            <input type="hidden" name="productId" value="@item.ProductId" />
+                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <h4 class="mb-0">Toplam: <span class="text-primary">@Model.TotalAmount.ToString("C2")</span></h4>
+                    <div>
+                        <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary me-2">
+                            <i class="fas fa-arrow-left me-2"></i>Alışverişe Devam Et
+                        </a>
+                        <a href="#" class="btn btn-primary">
+                            <i class="fas fa-check me-2"></i>Siparişi Tamamla
+                        </a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+                    <h3>Sepetiniz Boş</h3>
+                    <p class="text-muted">Henüz sepetinize ürün eklemediniz.</p>
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-primary mt-3">
+                        <i class="fas fa-shopping-bag me-2"></i>Alışverişe Başla
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('.quantity-decrease').click(function() {
+                var input = $(this).closest('.input-group').find('.quantity-input');
+                var currentValue = parseInt(input.val());
+                if (currentValue > 1) {
+                    input.val(currentValue - 1).change();
+                }
+            });
+
+            $('.quantity-increase').click(function() {
+                var input = $(this).closest('.input-group').find('.quantity-input');
+                var currentValue = parseInt(input.val());
+                input.val(currentValue + 1).change();
+            });
+
+            $('.quantity-input').change(function() {
+                var productId = $(this).data('product-id');
+                var quantity = $(this).val();
+                
+                $.post('@Url.Action("UpdateQuantity", "Cart")', {
+                    productId: productId,
+                    quantity: quantity
+                }, function(response) {
+                    if (response.success) {
+                        location.reload();
+                    }
+                });
+            });
+        });
+    </script>
+} 

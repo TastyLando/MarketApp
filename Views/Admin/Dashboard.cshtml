@@ -1,0 +1,31 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_AdminLayout";
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white mb-4">
+            <div class="card-body">
+                <h5>Toplam Ürün</h5>
+                <h2>@ViewBag.TotalProducts</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-success text-white mb-4">
+            <div class="card-body">
+                <h5>Toplam Stok</h5>
+                <h2>@ViewBag.TotalStock</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-info text-white mb-4">
+            <div class="card-body">
+                <h5>Toplam Değer</h5>
+                <h2>@ViewBag.TotalValue.ToString("C")</h2>
+            </div>
+        </div>
+    </div>
+</div>
