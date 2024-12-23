@@ -5,4 +5,8 @@ dockerfilePath = "Dockerfile"
 [deploy]
 startCommand = "dotnet Market.dll"
 healthcheckPath = "/"
-restartPolicyType = "ON_FAILURE" 
+restartPolicyType = "ON_FAILURE"
+port = "80"
+
+[env]
+ASPNETCORE_ENVIRONMENT = "Production"
