@@ -29,7 +29,7 @@ COPY --from=builder /app .
 ENV ASPNETCORE_URLS=http://+:${PORT}
 
 # Expose default port
-EXPOSE 80
+EXPOSE 443
 
 # Entry point
 ENTRYPOINT ["dotnet", "Market.dll"]
