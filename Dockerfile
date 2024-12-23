@@ -1,29 +1,28 @@
 # Base SDK Image
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Copy everything at once
-COPY . .
+# Debug: Show current directory
+RUN pwd && ls -la
 
-# Show directory contents for debugging
-RUN ls -la
-
-# Try to restore without specific project file
+# Copy csproj and restore dependencies
+COPY ["Market.csproj", "./"]
 RUN dotnet restore
 
-# Build
-RUN dotnet build --no-restore -c Release
+# Copy everything else
+COPY . ./
 
-# Publish
-RUN dotnet publish --no-restore -c Release -o out
+# Build and publish
+RUN dotnet publish -c Release -o out
 
-# Runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:7.0
+# Build runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/out .
 
 # Set environment variables
 ENV ASPNETCORE_URLS=http://+:80
+ENV ASPNETCORE_ENVIRONMENT=Production
 
 EXPOSE 80
 
