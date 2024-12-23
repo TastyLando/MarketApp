@@ -9,16 +9,25 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
+// MongoDB ayarlarını ekleyin
+builder.Services.Configure<MongoDBSettings>(
+    builder.Configuration.GetSection("MongoDBSettings"));
 
-// Add health checks
+builder.Services.AddSingleton<IMongoClient>(sp =>
+    new MongoClient(builder.Configuration.GetSection("MongoDBSettings:ConnectionString").Value));
+
+// Servisleri ekleyin
+builder.Services.AddControllersWithViews();
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+// Hata ayıklama için
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
@@ -26,12 +35,10 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseAuthorization();
 
-// Add health check endpoint
+// Sağlık kontrolü endpoint'i
 app.MapHealthChecks("/health");
 
 app.MapControllerRoute(
