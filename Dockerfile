@@ -1,38 +1,30 @@
+# Base SDK Image
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
-WORKDIR /source
+WORKDIR /app
 
-# Debug: List directory contents
+# Copy everything at once
+COPY . .
+
+# Show directory contents for debugging
 RUN ls -la
 
-# Copy csproj first and restore dependencies
-COPY Market.csproj ./
-RUN ls -la
-RUN dotnet restore "Market.csproj" --verbosity detailed
+# Try to restore without specific project file
+RUN dotnet restore
 
-# Copy everything else
-COPY . ./
-RUN ls -la
+# Build
+RUN dotnet build --no-restore -c Release
 
-# Build and publish
-RUN dotnet publish "Market.csproj" -c Release -o /app
-RUN ls -la /app
+# Publish
+RUN dotnet publish --no-restore -c Release -o out
 
 # Runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:7.0
 WORKDIR /app
-
-# Copy published files from build image
-COPY --from=build /app ./
-
-# Verify files copied correctly
-RUN ls -la
+COPY --from=build /app/out .
 
 # Set environment variables
 ENV ASPNETCORE_URLS=http://+:80
-ENV ASPNETCORE_ENVIRONMENT=Production
 
-# Expose port
 EXPOSE 80
 
-# Start the application
 ENTRYPOINT ["dotnet", "Market.dll"]
