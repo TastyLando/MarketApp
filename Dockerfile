@@ -1,29 +1,35 @@
-# Base SDK Image
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /app
+# Base image
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS builder
 
-# Debug: Show current directory
-RUN pwd && ls -la
+# Set working directory
+WORKDIR /source
 
-# Copy csproj and restore dependencies
+# Copy only necessary files for restore
 COPY ["Market.csproj", "./"]
+
+# Restore dependencies
 RUN dotnet restore
 
-# Copy everything else
-COPY . ./
+# Copy the rest of the files
+COPY . .
 
-# Build and publish
-RUN dotnet publish -c Release -o out
+# Clean and rebuild
+RUN dotnet clean
+RUN dotnet build --no-restore
+RUN dotnet publish --no-restore -c Release -o /app
 
-# Build runtime image
+# Runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
-COPY --from=build /app/out .
 
-# Set environment variables
-ENV ASPNETCORE_URLS=http://+:80
-ENV ASPNETCORE_ENVIRONMENT=Production
+# Copy published app from builder
+COPY --from=builder /app . 
 
+# Set environment variable for dynamic port
+ENV ASPNETCORE_URLS=http://+:${PORT}
+
+# Expose default port
 EXPOSE 80
 
+# Entry point
 ENTRYPOINT ["dotnet", "Market.dll"]
