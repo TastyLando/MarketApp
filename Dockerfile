@@ -1,35 +1,29 @@
 # Base image
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS builder
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 # Set working directory
-WORKDIR /source
-
-# Copy only necessary files for restore
-COPY ["Market.csproj", "./"]
-
-# Restore dependencies
-RUN dotnet restore
-
-# Copy the rest of the files
-COPY . .
-
-# Clean and rebuild
-RUN dotnet clean
-RUN dotnet build --no-restore
-RUN dotnet publish --no-restore -c Release -o /app
-
-# Runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 
-# Copy published app from builder
-COPY --from=builder /app . 
+# Copy everything
+COPY . ./
 
-# Set environment variable for dynamic port
-ENV ASPNETCORE_URLS=http://+:${PORT}
+# Restore and build
+RUN dotnet restore
+RUN dotnet publish -c Release -o out
 
-# Expose default port
-EXPOSE 443
+# Build runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+COPY --from=build /app/out .
 
-# Entry point
+# Environment variables
+ENV ASPNETCORE_URLS=http://+:8080
+ENV PORT=8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+EXPOSE 8080
+
 ENTRYPOINT ["dotnet", "Market.dll"]

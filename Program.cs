@@ -90,4 +90,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}"
 );
 
+// Healthcheck endpoint'i ekleyin
+app.MapGet("/health", () => Results.Ok("Healthy"));
+
 app.Run();
