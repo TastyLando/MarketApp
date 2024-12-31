@@ -47,7 +47,7 @@ A modern e-commerce platform built with ASP.NET Core MVC and MongoDB.
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/TastyLando/Market.git
+   git clone https://github.com/TastyLando/MarketApp.git
    ```
 
 2. **Navigate to project directory**
